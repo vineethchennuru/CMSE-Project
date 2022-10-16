@@ -4,7 +4,6 @@ import numpy as np
 
 import plotly
 import plotly.graph_objects as go
-from pyrsistent import thaw
 
 import streamlit as st
 st.set_page_config(layout="wide")
