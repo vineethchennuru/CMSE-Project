@@ -6,7 +6,7 @@ import plotly
 import plotly.graph_objects as go
 
 import streamlit as st
-st.set_page_config(layout="wide")
+st.set_page_config(page_title='CMSE Project',layout="wide")
 
 st.title('CMSE Project Webapp')
 st.markdown('[Code Repo](https://github.com/vineethchennuru/CMSE-Project) for this webapp')
