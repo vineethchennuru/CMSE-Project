@@ -8,6 +8,20 @@ import plotly.graph_objects as go
 import streamlit as st
 st.set_page_config(layout="wide")
 
+st.title('CMSE Project Webapp')
+st.markdown('[Code Repo](https://github.com/vineethchennuru/CMSE-Project) for this webapp')
+st.markdown('Dataset link : [Health Insurance Cross Sell Prediction Dataset🏠🏥](https://www.kaggle.com/datasets/anmolkumar/health-insurance-cross-sell-prediction)')
+
+st.markdown(
+    'Abstract: The goal of the project is to "Predict Health Insurance Owners who will be interested in Vehicle Insurance"'
+)
+st.markdown(
+    'Part1: I will be exploring the dataset(understanding all the given columns), performing different EDA techniques, and deploying a dashboard with various visualization to slice, dice, and generate valuable insights from the data.'
+)
+st.markdown(
+    'Part2: Taking insights generated from Part1 and building a model to predict whether the policyholders (customers) from the past year will also be interested in Vehicle Insurance provided by the company.'
+)
+
 # Reading data
 original_data = pd.read_csv('Health_Insurance_Cross_Sell_Prediction.csv')
 data = original_data.copy()
@@ -26,6 +40,8 @@ criteria = [data.Region_Code.between(0, 18), data.Region_Code.between(19, 36), d
 values = ['0-18','19-36','37-52']
 data.Region_Code = np.select(criteria, values, 0)
 
+st.header('Sample Data')
+st.table(original_data.head(10))
 
 def generate_random_color(n):
     arr = []
@@ -114,7 +130,7 @@ def genSankey(df,cat_cols=[],value_cols='',title='Sankey Diagram'):
           font=dict(
               family="Courier New, monospace",
               size=16,
-              color="black"
+              color="white"
               ),
           align="center"
       )
@@ -140,5 +156,7 @@ def genSankey(df,cat_cols=[],value_cols='',title='Sankey Diagram'):
 cols = ['Gender','Age','Region_Code','Vehicle_Age','Vehicle_Damage','Response']
 fig = genSankey(data,cat_cols=cols,value_cols='count_',title='Sankey')
 
+
+st.header('Sankey chart with few columns of the dataset')
 # Plot!
 st.plotly_chart(fig, use_container_width=True)
