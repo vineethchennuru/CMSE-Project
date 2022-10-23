@@ -1,6 +1,7 @@
 import pandas as pd
 import random
 
+import plotly.express as px
 import plotly.graph_objects as go
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -72,7 +73,7 @@ def genSankey(df,cat_cols=[],value_cols='',title='Sankey Diagram'):
       )
     
     layout =  dict(
-        title = title,
+        # title = title,
         font = dict(
           size = 10
         )
@@ -98,7 +99,7 @@ def genSankey(df,cat_cols=[],value_cols='',title='Sankey Diagram'):
       )
 
     fig.update_layout(
-        title_text="Basic Sankey Diagram", 
+        # title_text="Basic Sankey Diagram",
         xaxis={
         'showgrid': False, # thin lines in the background
         'zeroline': False, # thick line at x=0
@@ -115,13 +116,53 @@ def genSankey(df,cat_cols=[],value_cols='',title='Sankey Diagram'):
 
     return fig
 
-def plot_bar(x,data):
-    fig = plt.figure(figsize=(10, 4))
-    fig = sns.countplot(x= data[x])
+def getDistributionplot(dataset,column_name):
+    """ 
+    Creates distribution plot.
+    """
+    fig = px.histogram(dataset, x=column_name, color="Response", marginal="violin", # can be `box`, `violin`
+                         hover_data=dataset.columns)
     return fig
 
-def boxPlotter(dataset, columnName):
+def getPairPlot(dataset):
     """
-    Plots boxplots for column given as parameter.
+    Creates Pairplot
     """
-    sns.catplot(x="Response", y=columnName, data=dataset, kind="box");
+    fig = px.scatter_matrix(data_frame=dataset,
+            dimensions=['Age','Annual_Premium','Vintage'],
+            color="Response")
+    return fig
+
+def getRelPlot(dataset,x,y):
+    """
+    Creates Pairplot
+    """
+    fig = sns.relplot(data=dataset,x=x,y=y,kind='line',hue='Response')
+    return fig
+
+
+def getCorrelationPlot(dataset):
+    """
+    Creates Pairplot
+    """
+    dataset = dataset.astype({'Response':'int'})
+    dataset.Gender = dataset.Gender.map({'Male':0,'Female':1})
+    dataset.Vehicle_Damage = dataset.Vehicle_Damage.map({'No':0,'Yes':1})
+    
+    SpearmanCorr = dataset.corr(method="spearman")
+    fig = px.imshow(SpearmanCorr,text_auto=True,color_continuous_scale='RdBu_r')
+    fig.update_layout(
+        autosize=False,
+        width=1200,
+        height=800
+        )
+    return fig
+
+
+def getSunburstPlot(dataset,path):
+    """
+    Generate Sunburst with the given path
+    """
+    fig = px.sunburst(dataset, path=path, values='count_',width=750,height=750)
+    fig.update_traces(textinfo="label+percent parent")
+    return fig

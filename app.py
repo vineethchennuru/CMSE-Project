@@ -14,7 +14,7 @@ from plots import *
 
 st.set_page_config(page_title='CMSE Project',layout="wide")
 
-st.markdown("<h1 style='text-align: center; color: white;'>CMSE Project Webapp</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style=' text-align: center; color: white;'>CMSE Project Webapp</h1>", unsafe_allow_html=True)
 
 st.markdown(
     '<p><center><img alt="Car Insurance" src="https://www.financialexpress.com/wp-content/uploads/2022/10/Why-you-should-buy-your-new-car-insurance-directly-from-the-insurer_Reference-image.png"  width="400" height="200"> </center></p>', unsafe_allow_html=True
@@ -44,6 +44,10 @@ st.markdown('<p><hr></p>',unsafe_allow_html=True)
 # Reading data
 original_data = pd.read_csv('Health_Insurance_Cross_Sell_Prediction.csv')
 original_data.drop('id',axis=1,inplace=True)
+original_data = original_data.astype({'Response':'string'})
+# For computational purposes taking 20% of data for analysis
+# original_data = original_data.sample(n=int(len(original_data)/20))
+original_data = original_data[0:int(len(original_data)/20)]
 data = original_data.copy()
 
 data['count_'] = 1
@@ -62,85 +66,76 @@ data.Region_Code = np.select(criteria, values, 0)
 st.header('Sample Data')
 st.table(original_data.iloc[1:].head(10))
 
-cols = ['Gender','Age','Region_Code','Vehicle_Age','Vehicle_Damage','Response']
-fig = genSankey(data,cat_cols=cols,value_cols='count_',title='Sankey')
-
-
-st.header('Sankey chart with few columns of the dataset')
+cols = ['Gender','Age','Region_Code','Previously_Insured','Vehicle_Age','Vehicle_Damage','Response']
+st.header('Sankey chart')
+options = st.multiselect(
+    'Select columns you want to visualize in Sankey chart',
+    cols,
+    cols)
+fig = genSankey(data,cat_cols=options,value_cols='count_',title='Sankey')
 # Plot!
 st.plotly_chart(fig, use_container_width=True)
 
 
-tab1, tab2, tab3 = st.tabs(["Basic Analysis-1", "Basic Analysis-2", "Plots for next steps"])
+tab1, tab2, tab3 = st.tabs(["1D Analysis", "2D Analysis", "Plots for next steps"])
 
 with tab1:
-    st.header("Basic Analysis-1")
+    st.header("One dimentional analysis of different columns w.r.t to Response")
 
-    col1, col2 = st.columns(2,gap='large')
-    with col1:
-        options = st.selectbox('Select Column',( 'Age', 'Region_Code','Policy_Sales_Channel', 'Vintage'))
-        fig = boxPlotter(original_data, options)
-        st.set_option('deprecation.showPyplotGlobalUse', False)
-        st.markdown("Boxplots for "+options+" as parameter: ")
-        st.pyplot(fig)
+    # Plot-1 in Tab-1
+    column_name =  st.selectbox(
+        'For which column would you like to see the distplot',
+        ('Age','Region_Code','Annual_Premium','Policy_Sales_Channel','Vintage'))
+    fig = getDistributionplot(original_data,column_name)
+    st.markdown("Distplot for "+column_name)
+    st.plotly_chart(fig,use_container_width = True)
 
-    # with col2:
-    #     column_name =  st.selectbox(
-    #         'For which column would you like to see the distplot',
-    #         df.columns[:-1])
+    # Plot-2 in Tab-1
+    path = ['Gender','Age','Region_Code','Previously_Insured','Vehicle_Age','Vehicle_Damage','Response']
+    options = st.multiselect(
+        'Select columns you want to visualize in Sunburst chart',
+        path,
+        ['Region_Code','Age','Response'])
+    if len(options) >4:
+        st.markdown(
+            '<p style="color:red; font-size:22px">For better understanding purpose please select less than or equal to 4 columns in the filter</p>',unsafe_allow_html=True)
+    else:
+        fig = getSunburstPlot(data,options)
+        st.markdown('Sunburst chart for given path')
+        st.plotly_chart(fig,use_container_width = True)
 
-    #     # st.write('You selected:', column_name)
-
-
-    #     plt.figure(figsize=(20, 15))
-
-    #     fig = sns.displot(df[column_name])
-
-    #     st.header("Simple Distplot")
-    #     st.pyplot(fig)
-
-
-    
 with tab2:
-    st.header("Basic Analysis-2")
+    st.header("Two dimentional analysis of different columns w.r.t to Response")
     col1, col2 = st.columns(2,gap='large')
 
     with col1:
+        options_cols_x = ('Age', 'Driving_License', 'Region_Code', 'Previously_Insured')
+        options_cols_y = ('Annual_Premium', 'Policy_Sales_Channel', 'Vintage')
 
-        options = st.selectbox('Hue for the plot',('Gender', 'Vehicle_Age', 'Vehicle_Damage'))
+        options_x = st.selectbox('x-axis',options_cols_x)
+        options_y = st.selectbox('y-axis',options_cols_y)
 
         st.set_option('deprecation.showPyplotGlobalUse', False)
         # st.write('You selected:', options)
 
-        fig = sns.relplot(data=original_data,x='Age',y='Previously_Insured',kind='line',hue=options)
-        st.markdown("Relation plot of Age vs Previously_Insured with hue: "+options)
-        st.pyplot(fig)
+        fig = getRelPlot(original_data,options_x,options_y)
+        st.markdown("Relation plot of "+ options_x+ " vs "+ options_y +" with hue: Response")
+        st.pyplot(fig,use_container_width = True)
 
-    # with col2:
-    #     column_name =  st.selectbox(
-    #         'For which column would you like to see the distplot',
-    #         df.columns[:-1])
-
-    #     # st.write('You selected:', column_name)
-
-
-    #     plt.figure(figsize=(20, 15))
-
-    #     fig = sns.displot(df[column_name])
-
-    #     st.header("Simple Distplot")
-    #     st.pyplot(fig)
+    with col2:
+        st.markdown('<p><br></p>',unsafe_allow_html=True)
+        st.markdown('<p><br></p>',unsafe_allow_html=True)
+        st.markdown('<p><br></p>',unsafe_allow_html=True)
+        fig = getPairPlot(original_data)
+        st.markdown("Pairplot")
+        st.plotly_chart(fig,use_container_width = True)
 
 
 with tab3:
-    st.header("Basic Analysis-3")
+    st.header("Plots that will help us for modelling")
     st.markdown('Correaltion matrix for the dataset')
-    SpearmanCorr = original_data.corr(method="spearman")
-    fig = px.imshow(SpearmanCorr,text_auto=True,color_continuous_scale='RdBu_r')
-    fig.update_layout(
-        autosize=False,
-        width=800,
-        height=800)
-
+    fig = getCorrelationPlot(original_data)
     st.plotly_chart(fig)
 
+
+st.markdown('<p><hr></p>',unsafe_allow_html=True)
