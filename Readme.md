@@ -4,7 +4,7 @@ The web app for this project is  : [Webapp Link](https://cmse-project.herokuapp.
 
 ## To run the app in your local system
 
-To run this app you should have python installed in your system, you can install it from here : [Python](https://www.python.org/downloads/)
+You should have python installed in your system, you can install it from here : [Python](https://www.python.org/downloads/)
 
 Clone or download the above code to your local system.
 
