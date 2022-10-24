@@ -99,7 +99,7 @@ fig = genSankey(data,cat_cols=options,value_cols='count_',title='Sankey')
 # Plot!
 st.plotly_chart(fig, use_container_width=True)
 
-tab1, tab2, tab3 = st.tabs(["1D Analysis", "2D Analysis", "Plots and steps for next steps"])
+tab1, tab2, tab3, tab4 = st.tabs(["1D Analysis", "2D Analysis", "Hi Plot", "Plots and steps for next steps",])
 
 with tab1:
     st.header("One dimentional analysis of different columns w.r.t to Response")
@@ -154,6 +154,13 @@ with tab2:
 
 
 with tab3:
+    xp = hip.Experiment.from_dataframe(original_data)
+    # Instead of calling directly `.display()`
+    # just convert it to a streamlit component with `.to_streamlit()` before
+    st.markdown('High-dimensional interactive plot for the dataset')
+    ret_val = xp.to_streamlit().display()
+
+with tab4:
     st.header("Plots and insights that will help us for modelling")
     st.markdown('Correaltion matrix for the dataset')
     fig = getCorrelationPlot(original_data)
@@ -165,14 +172,6 @@ with tab3:
     df_descibe = original_data.describe().reset_index().rename({'index':''},axis=1)
     st.table(df_descibe)
 
-
 st.markdown('<p><hr></p>',unsafe_allow_html=True)
-
-xp = hip.Experiment.from_dataframe(original_data)
-
-# Instead of calling directly `.display()`
-# just convert it to a streamlit component with `.to_streamlit()` before
-st.markdown('HiPlot of dataset')
-ret_val = xp.to_streamlit().display()
 
 st.subheader('Next we will be trying to do preprocessing on data and modelling the data with different models')
