@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import random
 
@@ -141,7 +142,6 @@ def getRelPlot(dataset,x,y):
     fig = sns.relplot(data=dataset,x=x,y=y,kind='line',hue='Response')
     return fig
 
-
 def getCorrelationPlot(dataset):
     """
     Creates Pairplot
@@ -159,7 +159,6 @@ def getCorrelationPlot(dataset):
         )
     return fig
 
-
 def getSunburstPlot(dataset,path):
     """
     Generate Sunburst with the given path
@@ -167,3 +166,52 @@ def getSunburstPlot(dataset,path):
     fig = px.sunburst(dataset, path=path, values='count_',width=750,height=750)
     fig.update_traces(textinfo="label+percent parent")
     return fig
+
+def z_score(df):
+    return (df-df.mean())/df.std(ddof=0)
+
+def generate_random_color(n):
+    arr = []
+    for i in range(n):
+        r = lambda: random.randint(0,255)
+        hex_number = '#%02X%02X%02X'% (r(),r(),r())
+        arr.append(hex_number)
+    return arr
+
+def parallel_coordinate_plots_before_and_after_zscore(df):
+    """
+    This function generates all possbile parallel_coordinate_plots for non interger
+    columns before and after standard sclaing side by side.
+    
+    Parameters
+    ----------
+    df : Input dataframe
+    
+    Returns
+    -------
+    This function returns nothing
+    
+    """
+    number_columns = df.select_dtypes(include=[np.number]).columns.values
+    non_number_columns = list(set(df.columns) - set(number_columns))    
+    
+    df_scaled = df[number_columns].apply(z_score)
+    df_scaled[non_number_columns] = df[non_number_columns]
+    
+        
+    for non_number_column in non_number_columns:
+        f, (a1,a2) = plt.subplots(ncols=2, nrows=1, figsize=(20,5))
+        
+        print('Plotting for column "',non_number_column, '" before and after zscore scaling side by side')
+        pd.plotting.parallel_coordinates(df[np.append(number_columns,non_number_column)],
+                                         class_column=non_number_column,
+                                         color=generate_random_color(len(non_number_columns)),
+                                         ax=a1)
+        a1.set_title('Before Scaling')
+        pd.plotting.parallel_coordinates(df_scaled[np.append(number_columns,non_number_column)],
+                                         class_column=non_number_column,
+                                         ax=a2)
+        a2.set_title('After Standard Scaling')
+
+        plt.show()
+

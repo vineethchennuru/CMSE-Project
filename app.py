@@ -7,6 +7,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import seaborn as sns
 import matplotlib.pyplot as plt
+import hiplot as hip
 
 import streamlit as st
 
@@ -153,10 +154,25 @@ with tab2:
 
 
 with tab3:
-    st.header("Plots that will help us for modelling")
+    st.header("Plots and insights that will help us for modelling")
     st.markdown('Correaltion matrix for the dataset')
     fig = getCorrelationPlot(original_data)
     st.plotly_chart(fig)
 
 
+    st.markdown('Few intresting stats about the data')
+    original_data = original_data.astype({'Response':'int'})
+    df_descibe = original_data.describe().reset_index().rename({'index':''},axis=1)
+    st.table(df_descibe)
+
+
 st.markdown('<p><hr></p>',unsafe_allow_html=True)
+
+xp = hip.Experiment.from_dataframe(original_data)
+
+# Instead of calling directly `.display()`
+# just convert it to a streamlit component with `.to_streamlit()` before
+st.markdown('HiPlot of dataset')
+ret_val = xp.to_streamlit().display()
+
+st.subheader('Next we will be trying to do preprocessing on data and modelling the data with different models')
