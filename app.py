@@ -17,13 +17,13 @@ st.set_page_config(page_title='CMSE Project',layout="wide")
 st.markdown("<h1 style=' text-align: center; color: white;'>CMSE Project Webapp</h1>", unsafe_allow_html=True)
 
 st.markdown(
-    '<p><center><img alt="Car Insurance" src="https://www.financialexpress.com/wp-content/uploads/2022/10/Why-you-should-buy-your-new-car-insurance-directly-from-the-insurer_Reference-image.png"  width="400" height="200"> </center></p>', unsafe_allow_html=True
+    '<p><center><img alt="Car Insurance" src="https://www.financialexpress.com/wp-content/uploads/2022/10/Why-you-should-buy-your-new-car-insurance-directly-from-the-insurer_Reference-image.png"  width="500" height="250"> </center></p>', unsafe_allow_html=True
     )
 
 st.markdown('<p><hr></p>',unsafe_allow_html=True)
 
 st.markdown(
-    '<p style="color:magenta; font-size:22px"><u>Abstract</u>: Predict Health Insurance Owners who will be interested in Vehicle Insurance',unsafe_allow_html=True
+    '<p style="color:magenta; font-size:22px"><u>Abstract</u>: Predict Health Insurance Owners who will be interested in Vehicle Insurance (Classification Problem)',unsafe_allow_html=True
 )
 st.markdown(
     '<p><u>Part1</u>: I will be exploring the dataset(understanding all the given columns), performing different EDA techniques, and deploying a dashboard with various visualization to slice, dice, and generate valuable insights from the data."',unsafe_allow_html=True
@@ -43,15 +43,20 @@ st.markdown('<p><hr></p>',unsafe_allow_html=True)
 
 # Reading data
 original_data = pd.read_csv('Health_Insurance_Cross_Sell_Prediction.csv')
+
 original_data.drop('id',axis=1,inplace=True)
+
 original_data = original_data.astype({'Response':'string'})
+original_data = original_data.astype({'Region_Code':'int'})
+original_data = original_data.astype({'Annual_Premium':'int'})
+original_data = original_data.astype({'Policy_Sales_Channel':'int'})
+
 # For computational purposes taking 20% of data for analysis
 # original_data = original_data.sample(n=int(len(original_data)/20))
 original_data = original_data[0:int(len(original_data)/20)]
 data = original_data.copy()
 
 data['count_'] = 1
-
 
 data.Driving_License = data.Driving_License.map({1:'YES',0:'NO'})
 
@@ -63,8 +68,25 @@ criteria = [data.Region_Code.between(0, 18), data.Region_Code.between(19, 36), d
 values = ['0-18','19-36','37-52']
 data.Region_Code = np.select(criteria, values, 0)
 
+# CSS to inject contained in a string
+hide_table_row_index = """
+            <style>
+
+            thead tr th:first-child {display:none}
+            tbody th {display:none}
+            </style>
+            """
+
+# Inject CSS with Markdown
+st.markdown(hide_table_row_index, unsafe_allow_html=True)
+
 st.header('Sample Data')
 st.table(original_data.iloc[1:].head(10))
+
+st.header('Data Description')
+st.table(pd.read_csv('data_description.csv'))
+
+st.markdown('<p><hr></p>',unsafe_allow_html=True)
 
 cols = ['Gender','Age','Region_Code','Previously_Insured','Vehicle_Age','Vehicle_Damage','Response']
 st.header('Sankey chart')
@@ -76,8 +98,7 @@ fig = genSankey(data,cat_cols=options,value_cols='count_',title='Sankey')
 # Plot!
 st.plotly_chart(fig, use_container_width=True)
 
-
-tab1, tab2, tab3 = st.tabs(["1D Analysis", "2D Analysis", "Plots for next steps"])
+tab1, tab2, tab3 = st.tabs(["1D Analysis", "2D Analysis", "Plots and steps for next steps"])
 
 with tab1:
     st.header("One dimentional analysis of different columns w.r.t to Response")
@@ -128,7 +149,7 @@ with tab2:
         st.markdown('<p><br></p>',unsafe_allow_html=True)
         fig = getPairPlot(original_data)
         st.markdown("Pairplot")
-        st.plotly_chart(fig,use_container_width = True)
+        st.pyplot(fig,use_container_width = True)
 
 
 with tab3:

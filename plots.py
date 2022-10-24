@@ -128,9 +128,10 @@ def getPairPlot(dataset):
     """
     Creates Pairplot
     """
-    fig = px.scatter_matrix(data_frame=dataset,
-            dimensions=['Age','Annual_Premium','Vintage'],
-            color="Response")
+    fig = sns.pairplot(
+        dataset[['Age','Annual_Premium','Vintage','Response']],
+        hue="Response"
+        )
     return fig
 
 def getRelPlot(dataset,x,y):
