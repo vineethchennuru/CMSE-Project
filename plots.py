@@ -125,12 +125,12 @@ def getDistributionplot(dataset,column_name):
                          hover_data=dataset.columns)
     return fig
 
-def getPairPlot(dataset):
+def getPairPlot(dataset,columns):
     """
     Creates Pairplot
     """
     fig = sns.pairplot(
-        dataset[['Age','Annual_Premium','Vintage','Response']],
+        dataset[columns+['Response']],
         hue="Response"
         )
     return fig
@@ -215,3 +215,9 @@ def parallel_coordinate_plots_before_and_after_zscore(df):
 
         plt.show()
 
+def getMarginalPlot(dataset,x,y):
+    fig = px.scatter(dataset, x=x, y=y, color="Response", 
+                    marginal_x="violin", marginal_y="violin",
+                    # title=""
+                    )
+    return fig

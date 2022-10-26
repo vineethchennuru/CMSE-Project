@@ -131,11 +131,13 @@ with tab2:
     col1, col2 = st.columns(2,gap='large')
 
     with col1:
-        options_cols_x = ('Age', 'Driving_License', 'Region_Code', 'Previously_Insured')
-        options_cols_y = ('Annual_Premium', 'Policy_Sales_Channel', 'Vintage')
+        options = ('Gender','Age', 'Driving_License', 'Region_Code', 'Previously_Insured',
+                    'Vehicle_Damage','Annual_Premium', 'Policy_Sales_Channel', 'Vintage')
+        options_cols_x = options
+        options_cols_y = options
 
-        options_x = st.selectbox('x-axis',options_cols_x)
-        options_y = st.selectbox('y-axis',options_cols_y)
+        options_x = st.selectbox('x-axis',options_cols_x,index=1)
+        options_y = st.selectbox('y-axis',options_cols_y,index=6)
 
         st.set_option('deprecation.showPyplotGlobalUse', False)
         # st.write('You selected:', options)
@@ -147,10 +149,34 @@ with tab2:
     with col2:
         st.markdown('<p><br></p>',unsafe_allow_html=True)
         st.markdown('<p><br></p>',unsafe_allow_html=True)
-        st.markdown('<p><br></p>',unsafe_allow_html=True)
-        fig = getPairPlot(original_data)
-        st.markdown("Pairplot")
+
+        cols=['Gender','Age', 'Driving_License', 'Region_Code', 'Previously_Insured',
+                'Vehicle_Damage','Annual_Premium', 'Policy_Sales_Channel', 'Vintage']
+        
+        options = st.multiselect(
+            'Select columns you want to visualize in Pairplot',
+            cols,
+            ['Age','Annual_Premium','Vintage'])
+        
+        fig = getPairPlot(original_data,options)
+        st.markdown("Pairplot of the three real value datapoints - Age, Annual Premium, Vintage")
         st.pyplot(fig,use_container_width = True)
+
+    options = ('Gender','Age', 'Driving_License', 'Region_Code', 'Previously_Insured',
+                'Vehicle_Damage','Annual_Premium', 'Policy_Sales_Channel', 'Vintage')
+
+    marginal_x = options
+    marginal_y = options
+
+    marginal_options_x = st.selectbox('x axis',marginal_x,index=1)
+    marginal_options_y = st.selectbox('y axis',marginal_y,index=7)
+
+    st.set_option('deprecation.showPyplotGlobalUse', False)
+    # st.write('You selected:', options)
+
+    fig = getMarginalPlot(original_data,marginal_options_x,marginal_options_y)
+    st.markdown("Marginal Plot of "+ marginal_options_x+ " vs "+ marginal_options_y +" with hue: Response")
+    st.plotly_chart(fig,use_container_width = True)
 
 
 with tab3:
