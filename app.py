@@ -15,7 +15,7 @@ from plots import *
 
 st.set_page_config(page_title='CMSE Project',layout="wide")
 
-st.markdown("<h1 style=' text-align: center; color: white;'>CMSE Project Webapp</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style=' text-align: center; color: magenta;'>CMSE Project Webapp</h1>", unsafe_allow_html=True)
 
 st.markdown(
     '<p><center><img alt="Car Insurance" src="https://www.financialexpress.com/wp-content/uploads/2022/10/Why-you-should-buy-your-new-car-insurance-directly-from-the-insurer_Reference-image.png"  width="500" height="250"> </center></p>', unsafe_allow_html=True
@@ -81,11 +81,12 @@ hide_table_row_index = """
 # Inject CSS with Markdown
 st.markdown(hide_table_row_index, unsafe_allow_html=True)
 
+st.header('Data Description')
+st.table(pd.read_csv('data_description.csv'))
+
 st.header('Sample Data')
 st.table(original_data.iloc[1:].head(10))
 
-st.header('Data Description')
-st.table(pd.read_csv('data_description.csv'))
 
 st.markdown('<p><hr></p>',unsafe_allow_html=True)
 
@@ -105,14 +106,19 @@ with tab1:
     st.header("One dimentional analysis of different columns w.r.t to Response")
 
     # Plot-1 in Tab-1
+
+    st.subheader("Distplot with Response as hue ")
+
     column_name =  st.selectbox(
         'For which column would you like to see the distplot',
         ('Age','Region_Code','Annual_Premium','Policy_Sales_Channel','Vintage'))
     fig = getDistributionplot(original_data,column_name)
-    st.markdown("Distplot for "+column_name)
     st.plotly_chart(fig,use_container_width = True)
 
     # Plot-2 in Tab-1
+
+    st.subheader('Sunburst chart for given path')
+
     path = ['Gender','Age','Region_Code','Previously_Insured','Vehicle_Age','Vehicle_Damage','Response']
     options = st.multiselect(
         'Select columns you want to visualize in Sunburst chart',
@@ -123,7 +129,6 @@ with tab1:
             '<p style="color:red; font-size:22px">For better understanding purpose please select less than or equal to 4 columns in the filter</p>',unsafe_allow_html=True)
     else:
         fig = getSunburstPlot(data,options)
-        st.markdown('Sunburst chart for given path')
         st.plotly_chart(fig,use_container_width = True)
 
 with tab2:
@@ -136,6 +141,8 @@ with tab2:
         options_cols_x = options
         options_cols_y = options
 
+        st.subheader("Relation plot with hue as Response")
+
         options_x = st.selectbox('x-axis',options_cols_x,index=1)
         options_y = st.selectbox('y-axis',options_cols_y,index=6)
 
@@ -143,15 +150,14 @@ with tab2:
         # st.write('You selected:', options)
 
         fig = getRelPlot(original_data,options_x,options_y)
-        st.markdown("Relation plot of "+ options_x+ " vs "+ options_y +" with hue: Response")
         st.pyplot(fig,use_container_width = True)
 
     with col2:
-        st.markdown('<p><br></p>',unsafe_allow_html=True)
-        st.markdown('<p><br></p>',unsafe_allow_html=True)
 
         cols=['Gender','Age', 'Driving_License', 'Region_Code', 'Previously_Insured',
                 'Vehicle_Damage','Annual_Premium', 'Policy_Sales_Channel', 'Vintage']
+        
+        st.subheader("Pairplot with hue as Response")
         
         options = st.multiselect(
             'Select columns you want to visualize in Pairplot',
@@ -159,11 +165,14 @@ with tab2:
             ['Age','Annual_Premium','Vintage'])
         
         fig = getPairPlot(original_data,options)
-        st.markdown("Pairplot of the three real value datapoints - Age, Annual Premium, Vintage")
         st.pyplot(fig,use_container_width = True)
 
     options = ('Gender','Age', 'Driving_License', 'Region_Code', 'Previously_Insured',
                 'Vehicle_Damage','Annual_Premium', 'Policy_Sales_Channel', 'Vintage')
+
+    st.markdown('<p><hr></p>',unsafe_allow_html=True)
+
+    st.subheader("Marginal Plot with hue: Response")
 
     marginal_x = options
     marginal_y = options
@@ -175,7 +184,6 @@ with tab2:
     # st.write('You selected:', options)
 
     fig = getMarginalPlot(original_data,marginal_options_x,marginal_options_y)
-    st.markdown("Marginal Plot of "+ marginal_options_x+ " vs "+ marginal_options_y +" with hue: Response")
     st.plotly_chart(fig,use_container_width = True)
 
 
@@ -183,17 +191,17 @@ with tab3:
     xp = hip.Experiment.from_dataframe(original_data)
     # Instead of calling directly `.display()`
     # just convert it to a streamlit component with `.to_streamlit()` before
-    st.markdown('High-dimensional interactive plot for the dataset')
+    st.subheader('High-dimensional interactive plot for the dataset')
     ret_val = xp.to_streamlit().display()
 
 with tab4:
     st.header("Plots and insights that will help us for modelling")
-    st.markdown('Correaltion matrix for the dataset')
+    st.subheader('Correaltion matrix for the dataset')
     fig = getCorrelationPlot(original_data)
     st.plotly_chart(fig)
 
 
-    st.markdown('Few intresting stats about the data')
+    st.subheader('Few intresting stats about the data')
     original_data = original_data.astype({'Response':'int'})
     df_descibe = original_data.describe().reset_index().rename({'index':''},axis=1)
     st.table(df_descibe)

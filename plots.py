@@ -94,7 +94,7 @@ def genSankey(df,cat_cols=[],value_cols='',title='Sankey Diagram'):
           font=dict(
               family="Courier New, monospace",
               size=16,
-              color="white"
+              color="orange"
               ),
           align="center"
       )
@@ -129,6 +129,9 @@ def getPairPlot(dataset,columns):
     """
     Creates Pairplot
     """
+    dataset = dataset.astype({'Response':'int'})
+    dataset.Gender = dataset.Gender.map({'Male':0,'Female':1})
+    dataset.Vehicle_Damage = dataset.Vehicle_Damage.map({'No':0,'Yes':1})
     fig = sns.pairplot(
         dataset[columns+['Response']],
         hue="Response"
