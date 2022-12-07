@@ -209,3 +209,150 @@ with tab4:
 st.markdown('<p><hr></p>',unsafe_allow_html=True)
 
 st.subheader('Next we will be trying to do preprocessing on data and modelling the data with different models')
+
+st.text('These are the brief list of steps that are followed after above EDA')
+st.text('--> All the models are being created in a batch processing manner')
+st.text('--> And the models are saved in, which is used later below for inference')
+st.text('--> The brief architecture of out setup is we tried modelling our data in overall of 9 classification models')
+st.text('--> We had steps such as Cross validation and hyperparameter tuning which helps us getting the best model(without overfitting) and \n best hyperparamters for the given data ')
+
+import plotly.express as px
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.metrics import (f1_score, roc_auc_score,accuracy_score,confusion_matrix,
+                             precision_recall_curve, auc, roc_curve, recall_score,classification_report)
+
+from model_plot_func import (plot_classification_report,
+                            plot_roc,plot_confusion_matrix,
+                            get_ClassificationReport,
+                            get_xg_boost_data,
+                            get_predict)
+
+import plotly.express as px
+
+import pickle
+
+# Reading data
+original_data = pd.read_csv('Health_Insurance_Cross_Sell_Prediction.csv')
+original_data = original_data[0:int(len(original_data)/20)]
+columns = original_data.columns
+
+train,test = train_test_split(original_data,test_size=0.25)
+
+### Data Preprocessing
+
+num_feat = ['Age','Vintage']
+cat_feat = ['Gender', 'Driving_License', 'Previously_Insured', 'Vehicle_Age_lt_1_Year','Vehicle_Age_gt_2_Years','Vehicle_Damage_Yes','Region_Code','Policy_Sales_Channel']
+
+train['Gender'] = train['Gender'].map( {'Female': 0, 'Male': 1} ).astype(int)
+train=pd.get_dummies(train,drop_first=True)
+train=train.rename(columns={"Vehicle_Age_< 1 Year": "Vehicle_Age_lt_1_Year", "Vehicle_Age_> 2 Years": "Vehicle_Age_gt_2_Years"})
+train['Vehicle_Age_lt_1_Year']=train['Vehicle_Age_lt_1_Year'].astype('int')
+train['Vehicle_Age_gt_2_Years']=train['Vehicle_Age_gt_2_Years'].astype('int')
+train['Vehicle_Damage_Yes']=train['Vehicle_Damage_Yes'].astype('int')
+
+
+ss = StandardScaler()
+train[num_feat] = ss.fit_transform(train[num_feat])
+
+mm = MinMaxScaler()
+train[['Annual_Premium']] = mm.fit_transform(train[['Annual_Premium']])
+
+train=train.drop('id',axis=1)
+
+for column in cat_feat:
+    train[column] = train[column].astype('str')
+
+
+test['Gender'] = test['Gender'].map( {'Female': 0, 'Male': 1} ).astype(int)
+test=pd.get_dummies(test,drop_first=True)
+test=test.rename(columns={"Vehicle_Age_< 1 Year": "Vehicle_Age_lt_1_Year", "Vehicle_Age_> 2 Years": "Vehicle_Age_gt_2_Years"})
+test['Vehicle_Age_lt_1_Year']=test['Vehicle_Age_lt_1_Year'].astype('int')
+test['Vehicle_Age_gt_2_Years']=test['Vehicle_Age_gt_2_Years'].astype('int')
+test['Vehicle_Damage_Yes']=test['Vehicle_Damage_Yes'].astype('int')
+from sklearn.preprocessing import LabelEncoder, StandardScaler, MinMaxScaler, RobustScaler
+ss = StandardScaler()
+test[num_feat] = ss.fit_transform(test[num_feat])
+
+
+mm = MinMaxScaler()
+test[['Annual_Premium']] = mm.fit_transform(test[['Annual_Premium']])
+for column in cat_feat:
+    test[column] = test[column].astype('str')
+
+
+train_copy = train
+train_target=train['Response']
+train=train.drop(['Response'], axis = 1)
+x_train,x_test,y_train,y_test = train_test_split(train,train_target, random_state = 0)
+
+### Using saved models
+
+model_names = (
+    'XG Boost',
+    "Nearest Neighbors",
+    "SVC",
+    "Decision Tree",
+    "Random Forest",
+    "Neural Net",
+    "AdaBoost",
+    "Naive Bayes",
+    "QDA"
+)
+
+st.header("Different Modelling outputs")
+
+column_name =  st.selectbox(
+    'Train / Test Data',
+    ('Train','Test'))
+model_name =  st.selectbox(
+    'Select which model output you want to view',
+    model_names)
+
+if column_name == 'Train':
+    path = 'IPYNB files/models/'+model_name+'_model.sav'
+    x_,y_ = x_train,y_train
+    if model_name == 'XG Boost':
+        x_,y_ = get_xg_boost_data(train_copy,'Train')
+elif column_name == 'Test':
+    path = 'IPYNB files/models/'+model_name+'_model.sav'
+    x_,y_ = x_test,y_test
+    if model_name == 'XG Boost':
+        x_,y_ = get_xg_boost_data(train_copy,'Test')
+
+
+col1, col2 = st.columns(2,gap='large')
+
+with col1:
+    text = get_ClassificationReport(path,x_,y_)
+    st.subheader("Classification Report")
+    st.text('->'+text)
+
+with col2:
+    st.subheader("Classification Plot")
+
+    fig = plot_classification_report(text)
+    st.pyplot(fig,use_container_width = True)
+
+col3, col4 = st.columns(2,gap='small')
+
+with col3:
+    st.subheader("Roc Plot")
+    fig = plot_roc(path,x_,y_)
+    st.plotly_chart(fig)
+
+with col4:
+    st.subheader("Confusion Matrix")
+    fig = plot_confusion_matrix(path,x_,y_)
+    st.plotly_chart(fig)
+
+
+st.subheader("Predict on test data")
+st.text('test data has - '+str(len(x_))+' rows')
+row_number = st.slider(label = 'Row number of test data to be predicted',
+                        min_value=1,max_value=len(x_),step=1)
+output_predict = get_predict(path,x_,row_number)
+st.text('For row number:'+str(row_number)+' which has the folloing data :')
+st.table(x_.iloc[[row_number]])
+st.text('The Predicted Reponse is : '+str(output_predict[0]))
