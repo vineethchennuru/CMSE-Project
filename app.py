@@ -262,6 +262,12 @@ train['Vehicle_Age_lt_1_Year']=train['Vehicle_Age_lt_1_Year'].astype('int')
 train['Vehicle_Age_gt_2_Years']=train['Vehicle_Age_gt_2_Years'].astype('int')
 train['Vehicle_Damage_Yes']=train['Vehicle_Damage_Yes'].astype('int')
 
+from imblearn.over_sampling import SMOTE
+# Resampling the minority class. The strategy can be changed as required.
+sm = SMOTE(sampling_strategy='minority', random_state=42)
+# Fit the model to generate the data.
+oversampled_X, oversampled_Y = sm.fit_resample(train.drop('Response', axis=1), train['Response'])
+train = pd.concat([pd.DataFrame(oversampled_Y), pd.DataFrame(oversampled_X)], axis=1)
 
 ss = StandardScaler()
 train[num_feat] = ss.fit_transform(train[num_feat])
@@ -285,6 +291,12 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler, MinMaxScaler, Ro
 ss = StandardScaler()
 test[num_feat] = ss.fit_transform(test[num_feat])
 
+from imblearn.over_sampling import SMOTE
+# Resampling the minority class. The strategy can be changed as required.
+sm = SMOTE(sampling_strategy='minority', random_state=42)
+# Fit the model to generate the data.
+oversampled_X, oversampled_Y = sm.fit_resample(test.drop('Response', axis=1), test['Response'])
+test = pd.concat([pd.DataFrame(oversampled_Y), pd.DataFrame(oversampled_X)], axis=1)
 
 mm = MinMaxScaler()
 test[['Annual_Premium']] = mm.fit_transform(test[['Annual_Premium']])
