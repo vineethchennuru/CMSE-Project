@@ -210,11 +210,21 @@ st.markdown('<p><hr></p>',unsafe_allow_html=True)
 
 st.subheader('Next we will be trying to do preprocessing on data and modelling the data with different models')
 
+st.text('EDA steps on the data are:')
+st.text('--> Applied standard scalar on Age and Vintage')
+st.text('--> Dummy vaiables from Vehicle age column')
+st.text('--> Gender, Vehicle Damage are mapped to intergers')
+
 st.text('These are the brief list of steps that are followed after above EDA')
 st.text('--> All the models are being created in a batch processing manner')
-st.text('--> And the models are saved in, which is used later below for inference')
-st.text('--> The brief architecture of out setup is we tried modelling our data in overall of 9 classification models')
-st.text('--> We had steps such as Cross validation and hyperparameter tuning which helps us getting the best model(without overfitting) and \n best hyperparamters for the given data ')
+st.text('--> And the models are saved as binary files, which can be used later for predictions')
+st.text('--> We used 9 classification models, they are :')
+st.table(pd.DataFrame(('XG Boost',"Nearest Neighbors","SVC","Decision Tree","Random Forest","Neural Net" ,"AdaBoost","Naive Bayes","QDA"
+),columns=['Model Name']
+).T)
+st.text('--> Cross validation and hyperparameter tuning were used to get the best model(without overfitting) and best hyperparamters for the given data')
+
+st.markdown('<p><hr></p>',unsafe_allow_html=True)
 
 import plotly.express as px
 
@@ -331,7 +341,6 @@ with col1:
 
 with col2:
     st.subheader("Classification Plot")
-
     fig = plot_classification_report(text)
     st.pyplot(fig,use_container_width = True)
 
@@ -348,11 +357,12 @@ with col4:
     st.plotly_chart(fig)
 
 
-st.subheader("Predict on test data")
-st.text('test data has - '+str(len(x_))+' rows')
+st.subheader("Predict on "+column_name+" data")
+st.text(column_name+' data has - '+str(len(x_))+' rows')
 row_number = st.slider(label = 'Row number of test data to be predicted',
                         min_value=1,max_value=len(x_),step=1)
 output_predict = get_predict(path,x_,row_number)
 st.text('For row number:'+str(row_number)+' which has the folloing data :')
 st.table(x_.iloc[[row_number]])
 st.text('The Predicted Reponse is : '+str(output_predict[0]))
+
