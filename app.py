@@ -211,9 +211,9 @@ st.markdown('<p><hr></p>',unsafe_allow_html=True)
 st.subheader('Next we will be trying to do preprocessing on data and modelling the data with different models')
 
 st.text('EDA steps on the data are:')
-st.text('--> Applied standard scalar on Age and Vintage')
-st.text('--> Dummy vaiables from Vehicle age column')
-st.text('--> Gender, Vehicle Damage are mapped to intergers')
+st.text('--> Applied standard scalar on "Age" and "Vintage" columms')
+st.text('--> Dummy variables from "Vehicle age" column')
+st.text('--> "Gender", "Vehicle Damage" are mapped to intergers')
 
 st.text('These are the brief list of steps that are followed after above EDA')
 st.text('--> All the models are being created in a batch processing manner')
