@@ -214,15 +214,18 @@ st.text('EDA steps on the data are:')
 st.text('--> Applied standard scalar on "Age" and "Vintage" columms')
 st.text('--> Dummy variables from "Vehicle age" column')
 st.text('--> "Gender", "Vehicle Damage" are mapped to intergers')
+st.text('--> Since the no of data points per class is highly imbalanced, we applied SMOTE(Synthetic Minority Oversampling Technique)')
 
 st.text('These are the brief list of steps that are followed after above EDA')
 st.text('--> All the models are being created in a batch processing manner')
 st.text('--> And the models are saved as binary files, which can be used later for predictions')
+st.text('--> We are saving the models as the amount of data the model is being trained on is quite high(381109 rows and 8 columns)')
 st.text('--> We used 9 classification models, they are :')
 st.table(pd.DataFrame(('XG Boost',"Nearest Neighbors","SVC","Decision Tree","Random Forest","Neural Net" ,"AdaBoost","Naive Bayes","QDA"
 ),columns=['Model Name']
 ).T)
-st.text('--> Cross validation and hyperparameter tuning were used to get the best model(without overfitting) and best hyperparamters for the given data')
+st.text('--> Cross validation and hyperparameter tuning were used to get the best model(without overfitting) and best hyperparamters for the given\n data')
+
 
 st.markdown('<p><hr></p>',unsafe_allow_html=True)
 
